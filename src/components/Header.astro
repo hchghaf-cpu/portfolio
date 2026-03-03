@@ -1,0 +1,254 @@
+---
+/**
+ * Header — Navigation principale du site.
+ * Responsive avec menu hamburger pour mobile.
+ */
+import { navLinks, personalInfo } from "../data/portfolio";
+---
+
+<header class="header" role="banner">
+  <div class="container header-inner">
+    <!-- Logo / Nom -->
+    <a href="#accueil" class="logo" aria-label="Retour à l'accueil">
+      <span class="logo-icon">HC</span>
+      <span class="logo-text">{personalInfo.fullName}</span>
+    </a>
+
+    <!-- Navigation desktop -->
+    <nav class="nav-desktop" aria-label="Navigation principale">
+      <ul class="nav-list" role="list">
+        {navLinks.map((link) => (
+          <li>
+            <a href={link.href} class="nav-link">{link.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <!-- Bouton menu mobile -->
+    <button
+      class="menu-toggle"
+      aria-label="Ouvrir le menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span class="hamburger"></span>
+    </button>
+  </div>
+
+  <!-- Menu mobile -->
+  <nav id="mobile-menu" class="nav-mobile" aria-label="Menu mobile" hidden>
+    <ul class="nav-mobile-list" role="list">
+      {navLinks.map((link) => (
+        <li>
+          <a href={link.href} class="nav-mobile-link">{link.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-border);
+    transition: box-shadow var(--transition);
+  }
+
+  .header.scrolled {
+    box-shadow: var(--shadow-md);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 4rem;
+  }
+
+  /* Logo */
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .logo:hover {
+    color: var(--color-primary);
+  }
+
+  .logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: var(--color-primary);
+    color: #fff;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 800;
+  }
+
+  .logo-text {
+    font-size: 1.05rem;
+  }
+
+  /* Nav desktop */
+  .nav-list {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+  }
+
+  .nav-link {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text-light);
+    transition: all var(--transition);
+  }
+
+  .nav-link:hover {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
+
+  /* Hamburger */
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 110;
+  }
+
+  .hamburger,
+  .hamburger::before,
+  .hamburger::after {
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    background: var(--color-text);
+    border-radius: 2px;
+    transition: all var(--transition);
+    position: relative;
+  }
+
+  .hamburger::before,
+  .hamburger::after {
+    content: "";
+    position: absolute;
+    left: 0;
+  }
+
+  .hamburger::before {
+    top: -6px;
+  }
+
+  .hamburger::after {
+    top: 6px;
+  }
+
+  .menu-toggle[aria-expanded="true"] .hamburger {
+    background: transparent;
+  }
+
+  .menu-toggle[aria-expanded="true"] .hamburger::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded="true"] .hamburger::after {
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
+  /* Nav mobile */
+  .nav-mobile {
+    display: none;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem 0;
+  }
+
+  .nav-mobile[hidden] {
+    display: none !important;
+  }
+
+  .nav-mobile:not([hidden]) {
+    display: block;
+  }
+
+  .nav-mobile-list {
+    list-style: none;
+    padding: 0 1.5rem;
+  }
+
+  .nav-mobile-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--color-text);
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all var(--transition);
+  }
+
+  .nav-mobile-link:hover {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
+
+  @media (max-width: 768px) {
+    .nav-desktop {
+      display: none;
+    }
+
+    .menu-toggle {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  // ─── Menu mobile toggle ───
+  const toggle = document.querySelector(".menu-toggle");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  toggle?.addEventListener("click", () => {
+    const isOpen = toggle.getAttribute("aria-expanded") === "true";
+    toggle.setAttribute("aria-expanded", String(!isOpen));
+    toggle.setAttribute(
+      "aria-label",
+      isOpen ? "Ouvrir le menu" : "Fermer le menu"
+    );
+    if (mobileMenu) {
+      mobileMenu.hidden = isOpen;
+    }
+  });
+
+  // Fermer le menu au clic sur un lien
+  mobileMenu?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      toggle?.setAttribute("aria-expanded", "false");
+      if (mobileMenu) mobileMenu.hidden = true;
+    });
+  });
+
+  // ─── Header scroll effect ───
+  const header = document.querySelector(".header");
+  window.addEventListener("scroll", () => {
+    header?.classList.toggle("scrolled", window.scrollY > 20);
+  });
+</script>

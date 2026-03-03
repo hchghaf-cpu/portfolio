@@ -1,0 +1,20 @@
+---
+/**
+ * Page d'accueil — Assemble toutes les sections du portfolio.
+ * Chaque section est un composant Astro indépendant et réutilisable.
+ */
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import About from "../components/About.astro";
+import Projects from "../components/Projects.astro";
+import Timeline from "../components/Timeline.astro";
+import Contact from "../components/Contact.astro";
+---
+
+<Layout>
+  <Hero />
+  <About />
+  <Projects />
+  <Timeline />
+  <Contact />
+</Layout>

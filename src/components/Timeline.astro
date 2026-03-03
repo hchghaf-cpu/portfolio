@@ -1,0 +1,201 @@
+---
+/**
+ * Timeline — Parcours : éducation et expériences professionnelles.
+ */
+import { education, experiences } from "../data/portfolio";
+---
+
+<section id="parcours" class="section section-alt" aria-label="Parcours">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Parcours</h2>
+      <p class="section-subtitle">Formation et expériences professionnelles</p>
+    </div>
+
+    <div class="timeline">
+      <!-- Formation -->
+      <div class="timeline-group">
+        <h3 class="timeline-group-title">
+          <span class="tg-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1 4 3 6 3s6-2 6-3v-5"/></svg>
+          </span>
+          Formation
+        </h3>
+
+        {education.map((edu) => (
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div class="timeline-content">
+              <span class="timeline-period">{edu.period}</span>
+              <h4 class="timeline-title">{edu.degree}</h4>
+              <p class="timeline-place">{edu.school}</p>
+              <p class="timeline-location">{edu.location}</p>
+              <p class="timeline-desc">{edu.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Expériences -->
+      <div class="timeline-group">
+        <h3 class="timeline-group-title">
+          <span class="tg-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </span>
+          Expérience
+        </h3>
+
+        {experiences.map((exp) => (
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div class="timeline-content">
+              <span class="timeline-period">{exp.period}</span>
+              <h4 class="timeline-title">{exp.role}</h4>
+              <p class="timeline-place">{exp.company}</p>
+              <p class="timeline-location">{exp.location}</p>
+              <ul class="timeline-tasks">
+                {exp.description.map((task) => (
+                  <li>{task}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section-alt {
+    background: var(--color-bg-alt);
+  }
+
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .timeline-group-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 2rem;
+  }
+
+  .tg-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-radius: 0.5rem;
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-left: 1.75rem;
+    padding-bottom: 2rem;
+    border-left: 2px solid var(--color-border);
+  }
+
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -6px;
+    top: 0.25rem;
+    width: 10px;
+    height: 10px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    border: 2px solid var(--color-bg-alt);
+  }
+
+  .timeline-content {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    transition: all var(--transition);
+  }
+
+  .timeline-content:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+  }
+
+  .timeline-period {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    padding: 0.2rem 0.65rem;
+    border-radius: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-place {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+  }
+
+  .timeline-location {
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-desc {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    line-height: 1.7;
+  }
+
+  .timeline-tasks {
+    list-style: none;
+    padding: 0;
+  }
+
+  .timeline-tasks li {
+    position: relative;
+    padding-left: 1.1rem;
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    line-height: 1.7;
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-tasks li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--color-primary);
+    font-weight: bold;
+  }
+
+  @media (max-width: 768px) {
+    .timeline {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

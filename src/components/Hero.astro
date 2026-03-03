@@ -1,0 +1,174 @@
+---
+/**
+ * Hero — Section d'accueil avec présentation principale.
+ */
+import { personalInfo } from "../data/portfolio";
+---
+
+<section id="accueil" class="hero section" aria-label="Accueil">
+  <div class="container hero-content">
+    <div class="hero-text">
+      <p class="hero-greeting">Bonjour, je suis</p>
+      <h1 class="hero-name">{personalInfo.fullName}</h1>
+      <p class="hero-title">{personalInfo.title} · <span class="hero-school">{personalInfo.school.split("—")[0].trim()}</span></p>
+      <p class="hero-bio">{personalInfo.bio}</p>
+      <div class="hero-actions">
+        <a href="#projets" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Voir mes projets
+        </a>
+        <a href="#contact" class="btn btn-outline">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          Me contacter
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-avatar">
+        <span class="avatar-initials">HC</span>
+      </div>
+      <div class="hero-decoration"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-top: 8rem;
+    padding-bottom: 5rem;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .hero-greeting {
+    font-size: 1.1rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-name {
+    font-size: 3.25rem;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-title {
+    font-size: 1.15rem;
+    color: var(--color-text-light);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-school {
+    color: var(--color-primary);
+  }
+
+  .hero-bio {
+    font-size: 1.05rem;
+    color: var(--color-text-light);
+    max-width: 540px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* Avatar visuel */
+  .hero-visual {
+    position: relative;
+  }
+
+  .hero-avatar {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .avatar-initials {
+    font-size: 4rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.05em;
+  }
+
+  .hero-decoration {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    border: 3px dashed var(--color-primary-light);
+    z-index: 0;
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      padding-top: 6rem;
+      min-height: auto;
+    }
+
+    .hero-content {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 2.5rem;
+    }
+
+    .hero-name {
+      font-size: 2.25rem;
+    }
+
+    .hero-bio {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-actions {
+      justify-content: center;
+    }
+
+    .hero-visual {
+      order: -1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .hero-avatar {
+      width: 160px;
+      height: 160px;
+    }
+
+    .avatar-initials {
+      font-size: 3rem;
+    }
+
+    .hero-decoration {
+      width: 160px;
+      height: 160px;
+    }
+  }
+</style>
