@@ -41,6 +41,31 @@ const {
       <slot />
     </main>
     <Footer />
+    <script>
+      import { inject } from '@vercel/analytics';
+      inject();
+
+      // Send a push notification on each visit via ntfy.sh
+      (function notifyVisit() {
+        try {
+          const page = window.location.pathname;
+          const referrer = document.referrer || 'Direct';
+          const time = new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Casablanca' });
+          const lang = navigator.language || 'unknown';
+          const device = /Mobi|Android/i.test(navigator.userAgent) ? '📱 Mobile' : '💻 Desktop';
+
+          fetch('https://ntfy.sh/portefolio-hiba-chghaf-visits', {
+            method: 'POST',
+            headers: {
+              'Title': `${device} Nouveau visiteur sur ton portfolio!`,
+              'Tags': 'eyes,wave',
+              'Priority': '3',
+            },
+            body: `Page: ${page}\nRéférent: ${referrer}\nAppareil: ${device}\nLangue: ${lang}\nHeure: ${time}`,
+          });
+        } catch (_) { /* silently ignore errors */ }
+      })();
+    </script>
   </body>
 </html>
 

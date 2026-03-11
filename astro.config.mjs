@@ -6,7 +6,7 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   output: 'static',
   adapter: vercel(),
-  site: 'https://portfolio-hiba-chghaf.vercel.app',
+  site: 'https://portefolio-hiba-chghaf.vercel.app',
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto',

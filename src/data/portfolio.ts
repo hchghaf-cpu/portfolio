@@ -61,7 +61,7 @@ export const personalInfo: PersonalInfo = {
   fullName: "Hiba Chghaf",
   firstName: "Hiba",
   title: "Étudiante Ingénieure",
-  email: "hchghaf@esisa.ac.ma",
+  email: "h.chghaf@esisa.ac.ma",
   city: "Fès",
   country: "Maroc",
   school: "ESISA — École Supérieure d'Ingénierie en Sciences Appliquées",
@@ -100,6 +100,14 @@ export const experiences: Experience[] = [
 
 /* ─── Projets ─── */
 export const projects: Project[] = [
+  {
+    title: "MindBattle",
+    description:
+      "Jeu de quiz interactif où les joueurs créent un profil et s'affrontent dans des défis de culture générale. Interface ludique avec système de profils personnalisables.",
+    technologies: ["React", "TypeScript", "CSS", "Vercel"],
+    github: "https://github.com/hiba-chghaf/MindBattle",
+    demo: "https://mindbattle-wheat.vercel.app/",
+  },
   {
     title: "Student Management App",
     description:

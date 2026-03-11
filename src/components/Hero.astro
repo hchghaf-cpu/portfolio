@@ -26,7 +26,7 @@ import { personalInfo } from "../data/portfolio";
 
     <div class="hero-visual" aria-hidden="true">
       <div class="hero-avatar">
-        <span class="avatar-initials">HC</span>
+        <img src="/hiba.png" alt={`Photo de ${personalInfo.fullName}`} class="avatar-img" width="220" height="220" />
       </div>
       <div class="hero-decoration"></div>
     </div>
@@ -108,11 +108,11 @@ import { personalInfo } from "../data/portfolio";
     z-index: 1;
   }
 
-  .avatar-initials {
-    font-size: 4rem;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: 0.05em;
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
   .hero-decoration {
@@ -162,9 +162,7 @@ import { personalInfo } from "../data/portfolio";
       height: 160px;
     }
 
-    .avatar-initials {
-      font-size: 3rem;
-    }
+
 
     .hero-decoration {
       width: 160px;

@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Deploy to Vercel",
+			"type": "shell",
+			"command": "git add . && git commit -m \"Add MindBattle project\" && git push"
+		},
+		{
+			"label": "Git push to Vercel",
+			"type": "shell",
+			"command": "git add . && git commit -m \"Add MindBattle project\" && git push"
+		}
+	]
+}
