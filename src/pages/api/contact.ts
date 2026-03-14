@@ -1,9 +1,14 @@
 import type { APIRoute } from "astro";
 
-const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/h.chghaf@esisa.ac.ma";
 const PUBLIC_SITE_URL = "https://portefolio-hiba-chghaf.vercel.app";
 const REDIRECT_SUCCESS = "/?contact=success#contact";
 const REDIRECT_ERROR = "/?contact=error#contact";
+const REDIRECT_CONFIG = "/?contact=config#contact";
+
+const RESEND_ENDPOINT = "https://api.resend.com/emails";
+const RESEND_API_KEY = import.meta.env.RESEND_API_KEY;
+const CONTACT_TO_EMAIL = import.meta.env.CONTACT_TO_EMAIL ?? "h.chghaf@esisa.ac.ma";
+const CONTACT_FROM_EMAIL = import.meta.env.CONTACT_FROM_EMAIL ?? "Portfolio <onboarding@resend.dev>";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -27,19 +32,47 @@ export const POST: APIRoute = async ({ request }) => {
       return jsonOrRedirect(request, false, 400);
     }
 
-    const outbound = new FormData();
-    outbound.set("name", name);
-    outbound.set("email", email);
-    outbound.set("subject", subject);
-    outbound.set("message", message);
-    outbound.set("_captcha", "false");
-    outbound.set("_template", "table");
-    outbound.set("_subject", `Portfolio contact: ${subject}`);
+    if (!RESEND_API_KEY) {
+      return jsonOrRedirect(request, false, 500, "config");
+    }
 
-    const upstream = await fetch(FORMSUBMIT_ENDPOINT, {
+    const safeSubject = subject.slice(0, 140);
+    const safeName = name.slice(0, 100);
+    const safeEmail = email.slice(0, 180);
+    const safeMessage = message.slice(0, 5000);
+
+    const htmlBody = `
+      <h2>Nouveau message depuis le portfolio</h2>
+      <p><strong>Nom:</strong> ${escapeHtml(safeName)}</p>
+      <p><strong>Email:</strong> ${escapeHtml(safeEmail)}</p>
+      <p><strong>Sujet:</strong> ${escapeHtml(safeSubject)}</p>
+      <hr />
+      <p>${escapeHtml(safeMessage).replace(/\n/g, "<br />")}</p>
+    `;
+
+    const textBody = [
+      "Nouveau message depuis le portfolio",
+      `Nom: ${safeName}`,
+      `Email: ${safeEmail}`,
+      `Sujet: ${safeSubject}`,
+      "",
+      safeMessage,
+    ].join("\n");
+
+    const upstream = await fetch(RESEND_ENDPOINT, {
       method: "POST",
-      headers: { Accept: "application/json" },
-      body: outbound,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: CONTACT_FROM_EMAIL,
+        to: [CONTACT_TO_EMAIL],
+        reply_to: safeEmail,
+        subject: `Portfolio contact: ${safeSubject}`,
+        text: textBody,
+        html: htmlBody,
+      }),
     });
 
     if (!upstream.ok) {
@@ -56,16 +89,27 @@ function jsonOrRedirect(
   request: Request,
   ok: boolean,
   status: number,
+  reason: "error" | "config" = "error",
 ): Response {
   const accept = request.headers.get("accept") ?? "";
   const wantsJson = accept.includes("application/json");
 
   if (wantsJson) {
-    return new Response(JSON.stringify({ ok }), {
+    return new Response(JSON.stringify({ ok, reason }), {
       status,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  return Response.redirect(new URL(ok ? REDIRECT_SUCCESS : REDIRECT_ERROR, PUBLIC_SITE_URL), 303);
+  const redirectPath = ok ? REDIRECT_SUCCESS : reason === "config" ? REDIRECT_CONFIG : REDIRECT_ERROR;
+  return Response.redirect(new URL(redirectPath, PUBLIC_SITE_URL), 303);
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }

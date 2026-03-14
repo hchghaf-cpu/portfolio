@@ -34,12 +34,10 @@ Pour modifier vos données :
 
 ## Commandes
 
-| Commande            | Action                                      |
-| :------------------ | :------------------------------------------ |
-| `npm install`       | Installer les dépendances                   |
-| `npm run dev`       | Lancer le serveur de développement (`:4321`) |
-| `npm run build`     | Construire le site pour la production       |
-| `npm run preview`   | Prévisualiser le build localement           |
+- `npm install` : Installer les dépendances
+- `npm run dev` : Lancer le serveur de developpement (`:4321`)
+- `npm run build` : Construire le site pour la production
+- `npm run preview` : Previsualiser le build localement
 
 ## Déploiement sur Vercel
 
@@ -47,10 +45,23 @@ Pour modifier vos données :
 2. Sélectionnez le framework **Astro**
 3. Déployez — chaque push sur `main` déclenche un déploiement automatique
 
+## Variables d'environnement (Vercel)
+
+Ajoutez ces variables dans le projet Vercel:
+
+- `RESEND_API_KEY` : cle API Resend (obligatoire)
+- `CONTACT_TO_EMAIL` : email recepteur (optionnel, defaut `h.chghaf@esisa.ac.ma`)
+- `CONTACT_FROM_EMAIL` : expediteur Resend (optionnel, defaut `Portfolio <onboarding@resend.dev>`)
+
+Note:
+
+- Avec `onboarding@resend.dev`, Resend est limite en mode test.
+- Pour un usage production, configurez votre propre domaine d'envoi dans Resend.
+
 ## Technologies
 
 - **Astro** — Framework web statique performant
 - **TypeScript** — Typage des données
 - **CSS** — Styles personnalisés (pas de framework CSS)
-- **FormSubmit** — Réception des formulaires par email
+- **Resend API** — Réception des formulaires par email (backend)
 - **Vercel** — Hébergement et déploiement continu

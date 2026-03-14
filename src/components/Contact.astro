@@ -270,6 +270,10 @@ import { personalInfo } from "../data/portfolio";
     statusEl.className = "contact-status success";
     statusEl.textContent = "Message envoye avec succes. Merci!";
     history.replaceState({}, "", `${window.location.pathname}#contact`);
+  } else if (statusEl instanceof HTMLElement && params.get("contact") === "config") {
+    statusEl.className = "contact-status error";
+    statusEl.textContent = "Configuration email manquante. Ajoutez RESEND_API_KEY sur Vercel.";
+    history.replaceState({}, "", `${window.location.pathname}#contact`);
   } else if (statusEl instanceof HTMLElement && params.get("contact") === "error") {
     statusEl.className = "contact-status error";
     statusEl.textContent = "Echec d'envoi. Reessayez dans un instant.";
