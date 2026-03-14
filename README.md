@@ -51,6 +51,7 @@ Ajoutez ces variables dans le projet Vercel:
 
 - `RESEND_API_KEY` : cle API Resend (obligatoire)
 - `CONTACT_TO_EMAIL` : email recepteur (optionnel, defaut `h.chghaf@esisa.ac.ma`)
+- `CONTACT_TO_EMAILS` : liste d'emails separes par virgule (optionnel, max 100)
 - `CONTACT_FROM_EMAIL` : expediteur Resend (optionnel, defaut `Portfolio <onboarding@resend.dev>`)
 
 Note:

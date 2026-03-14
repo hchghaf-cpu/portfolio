@@ -8,6 +8,11 @@ const REDIRECT_CONFIG = "/?contact=config#contact";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const RESEND_API_KEY = import.meta.env.RESEND_API_KEY;
 const CONTACT_TO_EMAIL = import.meta.env.CONTACT_TO_EMAIL ?? "h.chghaf@esisa.ac.ma";
+const CONTACT_TO_EMAILS = (import.meta.env.CONTACT_TO_EMAILS ?? CONTACT_TO_EMAIL)
+  .split(",")
+  .map((email: string) => email.trim())
+  .filter(Boolean)
+  .slice(0, 100);
 const CONTACT_FROM_EMAIL = import.meta.env.CONTACT_FROM_EMAIL ?? "Portfolio <onboarding@resend.dev>";
 
 export const POST: APIRoute = async ({ request }) => {
@@ -33,6 +38,10 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     if (!RESEND_API_KEY) {
+      return jsonOrRedirect(request, false, 500, "config");
+    }
+
+    if (CONTACT_TO_EMAILS.length === 0) {
       return jsonOrRedirect(request, false, 500, "config");
     }
 
@@ -67,7 +76,7 @@ export const POST: APIRoute = async ({ request }) => {
       },
       body: JSON.stringify({
         from: CONTACT_FROM_EMAIL,
-        to: [CONTACT_TO_EMAIL],
+        to: CONTACT_TO_EMAILS,
         reply_to: safeEmail,
         subject: `Portfolio contact: ${safeSubject}`,
         text: textBody,
