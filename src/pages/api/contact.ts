@@ -15,6 +15,14 @@ const CONTACT_TO_EMAILS = (import.meta.env.CONTACT_TO_EMAILS ?? CONTACT_TO_EMAIL
   .slice(0, 100);
 const CONTACT_FROM_EMAIL = import.meta.env.CONTACT_FROM_EMAIL ?? "Portfolio <onboarding@resend.dev>";
 
+type ApiReason = "success" | "error" | "config";
+
+interface ApiMeta {
+  message?: string;
+  deliveryId?: string;
+  recipients?: number;
+}
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const formData = await request.formData();
@@ -34,15 +42,21 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     if (!name || !email || !subject || !message) {
-      return jsonOrRedirect(request, false, 400);
+      return jsonOrRedirect(request, false, 400, "error", {
+        message: "Tous les champs sont obligatoires.",
+      });
     }
 
     if (!RESEND_API_KEY) {
-      return jsonOrRedirect(request, false, 500, "config");
+      return jsonOrRedirect(request, false, 500, "config", {
+        message: "RESEND_API_KEY is missing.",
+      });
     }
 
     if (CONTACT_TO_EMAILS.length === 0) {
-      return jsonOrRedirect(request, false, 500, "config");
+      return jsonOrRedirect(request, false, 500, "config", {
+        message: "CONTACT_TO_EMAILS is empty.",
+      });
     }
 
     const safeSubject = subject.slice(0, 140);
@@ -84,13 +98,23 @@ export const POST: APIRoute = async ({ request }) => {
       }),
     });
 
+    const upstreamData = await safeJson(upstream);
+
     if (!upstream.ok) {
-      return jsonOrRedirect(request, false, 502);
+      return jsonOrRedirect(request, false, 502, "error", {
+        message: extractProviderError(upstreamData),
+      });
     }
 
-    return jsonOrRedirect(request, true, 200);
+    return jsonOrRedirect(request, true, 200, "success", {
+      deliveryId: extractDeliveryId(upstreamData),
+      recipients: CONTACT_TO_EMAILS.length,
+      message: "Email sent successfully.",
+    });
   } catch {
-    return jsonOrRedirect(request, false, 500);
+    return jsonOrRedirect(request, false, 500, "error", {
+      message: "Unexpected server error.",
+    });
   }
 };
 
@@ -98,13 +122,14 @@ function jsonOrRedirect(
   request: Request,
   ok: boolean,
   status: number,
-  reason: "error" | "config" = "error",
+  reason: ApiReason = ok ? "success" : "error",
+  meta: ApiMeta = {},
 ): Response {
   const accept = request.headers.get("accept") ?? "";
   const wantsJson = accept.includes("application/json");
 
   if (wantsJson) {
-    return new Response(JSON.stringify({ ok, reason }), {
+    return new Response(JSON.stringify({ ok, reason, ...meta }), {
       status,
       headers: { "Content-Type": "application/json" },
     });
@@ -112,6 +137,37 @@ function jsonOrRedirect(
 
   const redirectPath = ok ? REDIRECT_SUCCESS : reason === "config" ? REDIRECT_CONFIG : REDIRECT_ERROR;
   return Response.redirect(new URL(redirectPath, PUBLIC_SITE_URL), 303);
+}
+
+async function safeJson(response: Response): Promise<unknown> {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+function extractDeliveryId(payload: unknown): string | undefined {
+  if (payload && typeof payload === "object" && "id" in payload) {
+    const id = (payload as { id?: unknown }).id;
+    return typeof id === "string" ? id : undefined;
+  }
+
+  return undefined;
+}
+
+function extractProviderError(payload: unknown): string {
+  if (payload && typeof payload === "object") {
+    if ("message" in payload && typeof (payload as { message?: unknown }).message === "string") {
+      return (payload as { message: string }).message;
+    }
+
+    if ("error" in payload && typeof (payload as { error?: unknown }).error === "string") {
+      return (payload as { error: string }).error;
+    }
+  }
+
+  return "Email provider rejected the request.";
 }
 
 function escapeHtml(value: string): string {

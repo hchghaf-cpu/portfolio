@@ -124,6 +124,7 @@ import { personalInfo } from "../data/portfolio";
         </button>
 
         <p class="contact-status" data-contact-status aria-live="polite"></p>
+        <p class="contact-delivery" data-contact-delivery></p>
       </form>
     </div>
   </div>
@@ -254,6 +255,13 @@ import { personalInfo } from "../data/portfolio";
     color: #b91c1c;
   }
 
+  .contact-delivery {
+    margin-top: 0.45rem;
+    min-height: 1.2rem;
+    font-size: 0.82rem;
+    color: var(--color-text-light);
+  }
+
   @media (max-width: 768px) {
     .contact-grid {
       grid-template-columns: 1fr;
@@ -262,22 +270,99 @@ import { personalInfo } from "../data/portfolio";
 </style>
 
 <script>
+  const form = document.querySelector("[data-contact-form]");
   const statusEl = document.querySelector("[data-contact-status]");
+  const deliveryEl = document.querySelector("[data-contact-delivery]");
+
+  function setDeliveryInfo(text) {
+    if (deliveryEl instanceof HTMLElement) {
+      deliveryEl.textContent = text;
+    }
+  }
+
+  const lastDelivery = localStorage.getItem("contactLastDelivery");
+  if (lastDelivery) {
+    setDeliveryInfo(lastDelivery);
+  }
 
   // Handle server redirect feedback for non-JS form submissions.
   const params = new URLSearchParams(window.location.search);
   if (statusEl instanceof HTMLElement && params.get("contact") === "success") {
     statusEl.className = "contact-status success";
     statusEl.textContent = "Message envoye avec succes. Merci!";
+    setDeliveryInfo("Dernier envoi: reussi (mode redirection). Verifiez votre boite mail.");
     history.replaceState({}, "", `${window.location.pathname}#contact`);
   } else if (statusEl instanceof HTMLElement && params.get("contact") === "config") {
     statusEl.className = "contact-status error";
     statusEl.textContent = "Configuration email manquante. Ajoutez RESEND_API_KEY sur Vercel.";
+    setDeliveryInfo("Service email non configure sur Vercel.");
     history.replaceState({}, "", `${window.location.pathname}#contact`);
   } else if (statusEl instanceof HTMLElement && params.get("contact") === "error") {
     statusEl.className = "contact-status error";
     statusEl.textContent = "Echec d'envoi. Reessayez dans un instant.";
+    setDeliveryInfo("Dernier envoi: echec. Voir configuration Resend.");
     history.replaceState({}, "", `${window.location.pathname}#contact`);
   }
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!(form instanceof HTMLFormElement) || !(statusEl instanceof HTMLElement)) {
+      return;
+    }
+
+    const submitButton = form.querySelector("button[type='submit']");
+    if (submitButton instanceof HTMLButtonElement) {
+      submitButton.disabled = true;
+    }
+
+    statusEl.className = "contact-status";
+    statusEl.textContent = "Envoi en cours...";
+    setDeliveryInfo("Transmission au serveur...");
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: new FormData(form),
+      });
+
+      const payload = await response.json();
+
+      if (response.ok && payload?.ok) {
+        form.reset();
+        statusEl.className = "contact-status success";
+        statusEl.textContent = "Message envoye avec succes.";
+
+        const details = payload.deliveryId
+          ? `Transfert confirme. Resend ID: ${payload.deliveryId}`
+          : "Transfert confirme. ID non disponible.";
+
+        setDeliveryInfo(details);
+        localStorage.setItem("contactLastDelivery", details);
+      } else {
+        statusEl.className = "contact-status error";
+
+        if (payload?.reason === "config") {
+          statusEl.textContent = "Configuration Resend manquante sur Vercel.";
+        } else {
+          statusEl.textContent = "Echec d'envoi. Reessayez dans un instant.";
+        }
+
+        const errorDetails = payload?.message
+          ? `Erreur serveur: ${payload.message}`
+          : "Erreur serveur inconnue.";
+        setDeliveryInfo(errorDetails);
+      }
+    } catch {
+      statusEl.className = "contact-status error";
+      statusEl.textContent = "Erreur reseau pendant l'envoi.";
+      setDeliveryInfo("Impossible de contacter /api/contact");
+    } finally {
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = false;
+      }
+    }
+  });
 
 </script>
