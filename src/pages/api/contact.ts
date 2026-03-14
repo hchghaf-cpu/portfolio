@@ -77,6 +77,8 @@ export const POST: APIRoute = async ({ request }) => {
       safeMessage,
     ].join("\n");
 
+    let resendError: string | undefined;
+
     if (RESEND_API_KEY) {
       const upstream = await fetch(RESEND_ENDPOINT, {
         method: "POST",
@@ -96,17 +98,15 @@ export const POST: APIRoute = async ({ request }) => {
 
       const upstreamData = await safeJson(upstream);
 
-      if (!upstream.ok) {
-        return jsonOrRedirect(request, false, 502, "error", {
-          message: extractProviderError(upstreamData),
+      if (upstream.ok) {
+        return jsonOrRedirect(request, true, 200, "success", {
+          deliveryId: extractDeliveryId(upstreamData),
+          recipients: CONTACT_TO_EMAILS.length,
+          message: "Email sent with Resend.",
         });
       }
 
-      return jsonOrRedirect(request, true, 200, "success", {
-        deliveryId: extractDeliveryId(upstreamData),
-        recipients: CONTACT_TO_EMAILS.length,
-        message: "Email sent with Resend.",
-      });
+      resendError = extractProviderError(upstreamData);
     }
 
     // Automatic fallback when Resend key is not configured.
@@ -130,14 +130,21 @@ export const POST: APIRoute = async ({ request }) => {
     const fallbackData = await safeJson(fallbackResponse);
 
     if (!fallbackResponse.ok) {
+      const fallbackError = extractProviderError(fallbackData);
+      const combinedError = resendError
+        ? `Resend failed: ${resendError}. Fallback failed: ${fallbackError}.`
+        : fallbackError;
+
       return jsonOrRedirect(request, false, 502, "error", {
-        message: extractProviderError(fallbackData),
+        message: combinedError,
       });
     }
 
     return jsonOrRedirect(request, true, 200, "success", {
       recipients: 1,
-      message: "Email sent with FormSubmit fallback.",
+      message: resendError
+        ? `Resend failed (${resendError}). Message sent with FormSubmit fallback.`
+        : "Email sent with FormSubmit fallback.",
     });
   } catch {
     return jsonOrRedirect(request, false, 500, "error", {
