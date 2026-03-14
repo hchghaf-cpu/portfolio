@@ -6,6 +6,7 @@ const REDIRECT_ERROR = "/?contact=error#contact";
 const REDIRECT_CONFIG = "/?contact=config#contact";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
+const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/h.chghaf@esisa.ac.ma";
 const RESEND_API_KEY = import.meta.env.RESEND_API_KEY;
 const CONTACT_TO_EMAIL = import.meta.env.CONTACT_TO_EMAIL ?? "h.chghaf@esisa.ac.ma";
 const CONTACT_TO_EMAILS = (import.meta.env.CONTACT_TO_EMAILS ?? CONTACT_TO_EMAIL)
@@ -47,12 +48,6 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    if (!RESEND_API_KEY) {
-      return jsonOrRedirect(request, false, 500, "config", {
-        message: "RESEND_API_KEY is missing.",
-      });
-    }
-
     if (CONTACT_TO_EMAILS.length === 0) {
       return jsonOrRedirect(request, false, 500, "config", {
         message: "CONTACT_TO_EMAILS is empty.",
@@ -82,34 +77,67 @@ export const POST: APIRoute = async ({ request }) => {
       safeMessage,
     ].join("\n");
 
-    const upstream = await fetch(RESEND_ENDPOINT, {
+    if (RESEND_API_KEY) {
+      const upstream = await fetch(RESEND_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: CONTACT_FROM_EMAIL,
+          to: CONTACT_TO_EMAILS,
+          reply_to: safeEmail,
+          subject: `Portfolio contact: ${safeSubject}`,
+          text: textBody,
+          html: htmlBody,
+        }),
+      });
+
+      const upstreamData = await safeJson(upstream);
+
+      if (!upstream.ok) {
+        return jsonOrRedirect(request, false, 502, "error", {
+          message: extractProviderError(upstreamData),
+        });
+      }
+
+      return jsonOrRedirect(request, true, 200, "success", {
+        deliveryId: extractDeliveryId(upstreamData),
+        recipients: CONTACT_TO_EMAILS.length,
+        message: "Email sent with Resend.",
+      });
+    }
+
+    // Automatic fallback when Resend key is not configured.
+    const fallbackPayload = new FormData();
+    fallbackPayload.set("name", safeName);
+    fallbackPayload.set("email", safeEmail);
+    fallbackPayload.set("subject", safeSubject);
+    fallbackPayload.set("message", safeMessage);
+    fallbackPayload.set("_captcha", "false");
+    fallbackPayload.set("_template", "table");
+    fallbackPayload.set("_subject", `Portfolio contact: ${safeSubject}`);
+
+    const fallbackResponse = await fetch(FORMSUBMIT_ENDPOINT, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+        Accept: "application/json",
       },
-      body: JSON.stringify({
-        from: CONTACT_FROM_EMAIL,
-        to: CONTACT_TO_EMAILS,
-        reply_to: safeEmail,
-        subject: `Portfolio contact: ${safeSubject}`,
-        text: textBody,
-        html: htmlBody,
-      }),
+      body: fallbackPayload,
     });
 
-    const upstreamData = await safeJson(upstream);
+    const fallbackData = await safeJson(fallbackResponse);
 
-    if (!upstream.ok) {
+    if (!fallbackResponse.ok) {
       return jsonOrRedirect(request, false, 502, "error", {
-        message: extractProviderError(upstreamData),
+        message: extractProviderError(fallbackData),
       });
     }
 
     return jsonOrRedirect(request, true, 200, "success", {
-      deliveryId: extractDeliveryId(upstreamData),
-      recipients: CONTACT_TO_EMAILS.length,
-      message: "Email sent successfully.",
+      recipients: 1,
+      message: "Email sent with FormSubmit fallback.",
     });
   } catch {
     return jsonOrRedirect(request, false, 500, "error", {

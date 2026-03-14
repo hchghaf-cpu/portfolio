@@ -336,7 +336,9 @@ import { personalInfo } from "../data/portfolio";
 
         const details = payload.deliveryId
           ? `Transfert confirme. Resend ID: ${payload.deliveryId}`
-          : "Transfert confirme. ID non disponible.";
+          : payload?.message
+            ? `Transfert confirme. ${payload.message}`
+            : "Transfert confirme. ID non disponible.";
 
         setDeliveryInfo(details);
         localStorage.setItem("contactLastDelivery", details);
