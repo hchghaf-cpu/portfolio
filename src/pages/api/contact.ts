@@ -96,17 +96,17 @@ export const POST: APIRoute = async ({ request }) => {
         }),
       });
 
-      const upstreamData = await safeJson(upstream);
+      const upstreamData = await readResponsePayload(upstream);
 
       if (upstream.ok) {
         return jsonOrRedirect(request, true, 200, "success", {
-          deliveryId: extractDeliveryId(upstreamData),
+          deliveryId: extractDeliveryId(upstreamData.json),
           recipients: CONTACT_TO_EMAILS.length,
           message: "Email sent with Resend.",
         });
       }
 
-      resendError = extractProviderError(upstreamData);
+      resendError = extractProviderError(upstreamData.json, upstreamData.text);
     }
 
     // Automatic fallback when Resend key is not configured.
@@ -125,14 +125,24 @@ export const POST: APIRoute = async ({ request }) => {
         Accept: "application/json",
         Origin: PUBLIC_SITE_URL,
         Referer: `${PUBLIC_SITE_URL}/`,
+        "X-Requested-With": "XMLHttpRequest",
+        "User-Agent": "Mozilla/5.0",
       },
       body: fallbackPayload,
     });
 
-    const fallbackData = await safeJson(fallbackResponse);
+    const fallbackData = await readResponsePayload(fallbackResponse);
+    const fallbackSuccess =
+      fallbackResponse.ok &&
+      !(
+        fallbackData.json &&
+        typeof fallbackData.json === "object" &&
+        "success" in fallbackData.json &&
+        String((fallbackData.json as { success?: unknown }).success).toLowerCase() !== "true"
+      );
 
-    if (!fallbackResponse.ok) {
-      const fallbackError = extractProviderError(fallbackData);
+    if (!fallbackSuccess) {
+      const fallbackError = extractProviderError(fallbackData.json, fallbackData.text);
       const combinedError = resendError
         ? `Resend failed: ${resendError}. Fallback failed: ${fallbackError}.`
         : fallbackError;
@@ -176,11 +186,13 @@ function jsonOrRedirect(
   return Response.redirect(new URL(redirectPath, PUBLIC_SITE_URL), 303);
 }
 
-async function safeJson(response: Response): Promise<unknown> {
+async function readResponsePayload(response: Response): Promise<{ json: unknown; text: string }> {
+  const text = await response.text();
+
   try {
-    return await response.json();
+    return { json: JSON.parse(text), text };
   } catch {
-    return null;
+    return { json: null, text };
   }
 }
 
@@ -193,7 +205,7 @@ function extractDeliveryId(payload: unknown): string | undefined {
   return undefined;
 }
 
-function extractProviderError(payload: unknown): string {
+function extractProviderError(payload: unknown, rawText = ""): string {
   if (payload && typeof payload === "object") {
     if ("message" in payload && typeof (payload as { message?: unknown }).message === "string") {
       return (payload as { message: string }).message;
@@ -202,6 +214,11 @@ function extractProviderError(payload: unknown): string {
     if ("error" in payload && typeof (payload as { error?: unknown }).error === "string") {
       return (payload as { error: string }).error;
     }
+  }
+
+  const cleaned = rawText.replace(/\s+/g, " ").trim();
+  if (cleaned) {
+    return cleaned.slice(0, 220);
   }
 
   return "Email provider rejected the request.";
