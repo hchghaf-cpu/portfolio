@@ -60,12 +60,12 @@ export interface Certification {
 export const personalInfo: PersonalInfo = {
   fullName: "Hiba Chghaf",
   firstName: "Hiba",
-  title: "Étudiante Ingénieure",
+  title: "Frontend Developer & Software Engineering Student",
   email: "h.chghaf@esisa.ac.ma",
   city: "Fès",
   country: "Maroc",
   school: "ESISA — École Supérieure d'Ingénierie en Sciences Appliquées",
-  bio: "Étudiante ingénieure passionnée par le développement logiciel et la technologie. Actuellement en formation à l'ESISA de Fès, je développe des compétences solides en ingénierie logicielle tout en m'engageant activement dans des activités sportives et associatives.",
+  bio: "I design and build modern web experiences with a strong focus on clean interfaces, performance, and real user value. I am currently studying software engineering at ESISA while growing through practical projects and teamwork.",
   linkedin: "https://www.linkedin.com/in/hiba-chghaf",
   github: "https://github.com/hiba-chghaf",
 };

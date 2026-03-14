@@ -31,6 +31,10 @@ const {
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
@@ -72,26 +76,25 @@ const {
 <style is:global>
   /* ─── Reset & Variables CSS ─── */
   :root {
-    --color-primary: #2563eb;
-    --color-primary-dark: #1d4ed8;
-    --color-primary-light: #dbeafe;
-    --color-accent: #7c3aed;
-    --color-bg: #ffffff;
-    --color-bg-alt: #f8fafc;
+    --color-primary: #0f766e;
+    --color-primary-dark: #115e59;
+    --color-primary-light: #ccfbf1;
+    --color-accent: #d97706;
+    --color-bg: #f6f1e7;
+    --color-bg-alt: #fff9ef;
     --color-bg-card: #ffffff;
-    --color-text: #1e293b;
-    --color-text-light: #64748b;
-    --color-border: #e2e8f0;
+    --color-text: #2c1d14;
+    --color-text-light: #64594f;
+    --color-border: #e8dccb;
     --color-success: #10b981;
-    --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --font-display: "Cormorant Garamond", "Times New Roman", serif;
+    --font-sans: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
     --font-mono: "JetBrains Mono", "Fira Code", monospace;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07),
-      0 2px 4px -2px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08),
-      0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 3px 10px rgba(44, 29, 20, 0.07);
+    --shadow-md: 0 12px 26px rgba(44, 29, 20, 0.11);
+    --shadow-lg: 0 26px 45px rgba(44, 29, 20, 0.16);
     --radius: 0.75rem;
-    --max-width: 1100px;
+    --max-width: 1160px;
     --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -112,9 +115,15 @@ const {
     font-family: var(--font-sans);
     color: var(--color-text);
     background-color: var(--color-bg);
+    background-image:
+      radial-gradient(circle at 8% 12%, rgba(15, 118, 110, 0.11), transparent 22%),
+      radial-gradient(circle at 86% 20%, rgba(217, 119, 6, 0.12), transparent 24%),
+      radial-gradient(circle at 70% 86%, rgba(15, 118, 110, 0.1), transparent 22%),
+      linear-gradient(180deg, #f8f3ea 0%, #f6f1e7 48%, #f3ece0 100%);
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
   }
 
   img {
@@ -163,11 +172,13 @@ const {
   }
 
   .section-title {
-    font-size: 2rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 2.6rem);
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: var(--color-text);
     position: relative;
+    letter-spacing: 0.02em;
   }
 
   .section-subtitle {
@@ -196,10 +207,12 @@ const {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.75rem;
+    padding: 0.8rem 1.85rem;
     border-radius: var(--radius);
-    font-weight: 600;
-    font-size: 0.95rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     border: none;
     cursor: pointer;
     transition: all var(--transition);
@@ -207,27 +220,28 @@ const {
   }
 
   .btn-primary {
-    background: var(--color-primary);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
     color: #fff;
+    box-shadow: var(--shadow-sm);
   }
 
   .btn-primary:hover {
-    background: var(--color-primary-dark);
+    background: linear-gradient(135deg, var(--color-primary-dark), #b45309);
     color: #fff;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-md);
   }
 
   .btn-outline {
     border: 2px solid var(--color-primary);
     color: var(--color-primary);
-    background: transparent;
+    background: rgba(255, 255, 255, 0.5);
   }
 
   .btn-outline:hover {
     background: var(--color-primary);
     color: #fff;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
   }
 
   /* ─── Responsive ─── */
