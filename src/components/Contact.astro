@@ -61,10 +61,11 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
       <!-- Formulaire -->
       <form
         class="contact-form"
-        action={`https://formsubmit.co/${personalInfo.email}`}
+        action={`https://formsubmit.co/ajax/${personalInfo.email}`}
         method="POST"
         accept-charset="UTF-8"
         aria-label="Formulaire de contact"
+        data-contact-form
       >
         <!-- Honeypot anti-spam -->
         <input type="text" name="_honey" style="display:none" />
@@ -131,6 +132,8 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
           Envoyer le message
         </button>
+
+        <p class="contact-status" data-contact-status aria-live="polite"></p>
       </form>
     </div>
   </div>
@@ -245,9 +248,59 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
     font-size: 1rem;
   }
 
+  .contact-status {
+    margin-top: 0.9rem;
+    min-height: 1.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+  }
+
+  .contact-status.success {
+    color: #0f766e;
+  }
+
+  .contact-status.error {
+    color: #b91c1c;
+  }
+
   @media (max-width: 768px) {
     .contact-grid {
       grid-template-columns: 1fr;
     }
   }
 </style>
+
+<script>
+  const form = document.querySelector("[data-contact-form]");
+  const statusEl = document.querySelector("[data-contact-status]");
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!(form instanceof HTMLFormElement) || !(statusEl instanceof HTMLElement)) return;
+
+    statusEl.className = "contact-status";
+    statusEl.textContent = "Envoi en cours...";
+
+    try {
+      const formData = new FormData(form);
+      const response = await fetch(form.action, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("FormSubmit error");
+      }
+
+      form.reset();
+      statusEl.className = "contact-status success";
+      statusEl.textContent = "Message envoye avec succes. Merci!";
+    } catch (_) {
+      statusEl.className = "contact-status error";
+      statusEl.textContent = "Echec d'envoi. Reessayez dans un instant.";
+    }
+  });
+</script>
