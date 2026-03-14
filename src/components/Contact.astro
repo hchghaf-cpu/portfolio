@@ -3,8 +3,6 @@
  * Contact — Formulaire de contact et liens vers les réseaux.
  */
 import { personalInfo } from "../data/portfolio";
-
-const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
 ---
 
 <section id="contact" class="section" aria-label="Contact">
@@ -61,22 +59,14 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
       <!-- Formulaire -->
       <form
         class="contact-form"
-        action={`https://formsubmit.co/${personalInfo.email}`}
+        action="/api/contact"
         method="POST"
         accept-charset="UTF-8"
         aria-label="Formulaire de contact"
         data-contact-form
       >
         <!-- Honeypot anti-spam -->
-        <input type="text" name="_honey" style="display:none" />
-        <!-- Désactiver le captcha FormSubmit -->
-        <input type="hidden" name="_captcha" value="false" />
-        <!-- Forcer un sujet lisible côté email -->
-        <input type="hidden" name="_subject" value="Nouveau message depuis le portfolio" />
-        <!-- Redirection après envoi (URL absolue requise par FormSubmit) -->
-        <input type="hidden" name="_next" value={successRedirectUrl} />
-        <input type="hidden" name="_template" value="table" />
-        <input type="hidden" name="_autoresponse" value="Merci pour votre message. Je vous répondrai très vite." />
+        <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
 
         <div class="form-group">
           <label for="name" class="form-label">Nom complet</label>
@@ -274,7 +264,18 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
 <script>
   const form = document.querySelector("[data-contact-form]");
   const statusEl = document.querySelector("[data-contact-status]");
-  const ajaxEndpoint = "https://formsubmit.co/ajax/h.chghaf@esisa.ac.ma";
+
+  // Handle server redirect feedback for non-JS form submissions.
+  const params = new URLSearchParams(window.location.search);
+  if (statusEl instanceof HTMLElement && params.get("contact") === "success") {
+    statusEl.className = "contact-status success";
+    statusEl.textContent = "Message envoye avec succes. Merci!";
+    history.replaceState({}, "", `${window.location.pathname}#contact`);
+  } else if (statusEl instanceof HTMLElement && params.get("contact") === "error") {
+    statusEl.className = "contact-status error";
+    statusEl.textContent = "Echec d'envoi. Reessayez dans un instant.";
+    history.replaceState({}, "", `${window.location.pathname}#contact`);
+  }
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -286,7 +287,7 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
 
     try {
       const formData = new FormData(form);
-      const response = await fetch(ajaxEndpoint, {
+      const response = await fetch(form.action, {
         method: "POST",
         headers: { Accept: "application/json" },
         body: formData,
@@ -294,6 +295,11 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
 
       if (!response.ok) {
         throw new Error("FormSubmit error");
+      }
+
+      const payload = await response.json();
+      if (!payload?.ok) {
+        throw new Error("Contact API error");
       }
 
       form.reset();
