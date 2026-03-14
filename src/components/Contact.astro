@@ -3,6 +3,8 @@
  * Contact — Formulaire de contact et liens vers les réseaux.
  */
 import { personalInfo } from "../data/portfolio";
+
+const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
 ---
 
 <section id="contact" class="section" aria-label="Contact">
@@ -61,14 +63,19 @@ import { personalInfo } from "../data/portfolio";
         class="contact-form"
         action={`https://formsubmit.co/${personalInfo.email}`}
         method="POST"
+        accept-charset="UTF-8"
         aria-label="Formulaire de contact"
       >
         <!-- Honeypot anti-spam -->
         <input type="text" name="_honey" style="display:none" />
         <!-- Désactiver le captcha FormSubmit -->
         <input type="hidden" name="_captcha" value="false" />
-        <!-- Redirection après envoi -->
-        <input type="hidden" name="_next" value="#contact" />
+        <!-- Forcer un sujet lisible côté email -->
+        <input type="hidden" name="_subject" value="Nouveau message depuis le portfolio" />
+        <!-- Redirection après envoi (URL absolue requise par FormSubmit) -->
+        <input type="hidden" name="_next" value={successRedirectUrl} />
+        <input type="hidden" name="_template" value="table" />
+        <input type="hidden" name="_autoresponse" value="Merci pour votre message. Je vous répondrai très vite." />
 
         <div class="form-group">
           <label for="name" class="form-label">Nom complet</label>
@@ -101,7 +108,7 @@ import { personalInfo } from "../data/portfolio";
           <input
             type="text"
             id="subject"
-            name="_subject"
+            name="subject"
             required
             placeholder="Sujet de votre message"
             class="form-input"
