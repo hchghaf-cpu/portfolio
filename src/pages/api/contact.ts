@@ -123,6 +123,8 @@ export const POST: APIRoute = async ({ request }) => {
       method: "POST",
       headers: {
         Accept: "application/json",
+        Origin: PUBLIC_SITE_URL,
+        Referer: `${PUBLIC_SITE_URL}/`,
       },
       body: fallbackPayload,
     });
