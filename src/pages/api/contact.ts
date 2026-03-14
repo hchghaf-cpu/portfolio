@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 
 const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/h.chghaf@esisa.ac.ma";
+const PUBLIC_SITE_URL = "https://portefolio-hiba-chghaf.vercel.app";
 const REDIRECT_SUCCESS = "/?contact=success#contact";
 const REDIRECT_ERROR = "/?contact=error#contact";
 
@@ -66,12 +67,5 @@ function jsonOrRedirect(
     });
   }
 
-  const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
-  const forwardedHost =
-    request.headers.get("x-forwarded-host") ??
-    request.headers.get("host") ??
-    "portefolio-hiba-chghaf.vercel.app";
-  const baseUrl = `${forwardedProto}://${forwardedHost}`;
-
-  return Response.redirect(new URL(ok ? REDIRECT_SUCCESS : REDIRECT_ERROR, baseUrl), 303);
+  return Response.redirect(new URL(ok ? REDIRECT_SUCCESS : REDIRECT_ERROR, PUBLIC_SITE_URL), 303);
 }
