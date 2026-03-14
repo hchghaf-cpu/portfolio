@@ -262,7 +262,6 @@ import { personalInfo } from "../data/portfolio";
 </style>
 
 <script>
-  const form = document.querySelector("[data-contact-form]");
   const statusEl = document.querySelector("[data-contact-status]");
 
   // Handle server redirect feedback for non-JS form submissions.
@@ -277,37 +276,4 @@ import { personalInfo } from "../data/portfolio";
     history.replaceState({}, "", `${window.location.pathname}#contact`);
   }
 
-  form?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    if (!(form instanceof HTMLFormElement) || !(statusEl instanceof HTMLElement)) return;
-
-    statusEl.className = "contact-status";
-    statusEl.textContent = "Envoi en cours...";
-
-    try {
-      const formData = new FormData(form);
-      const response = await fetch(form.action, {
-        method: "POST",
-        headers: { Accept: "application/json" },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("FormSubmit error");
-      }
-
-      const payload = await response.json();
-      if (!payload?.ok) {
-        throw new Error("Contact API error");
-      }
-
-      form.reset();
-      statusEl.className = "contact-status success";
-      statusEl.textContent = "Message envoye avec succes. Merci!";
-    } catch (_) {
-      statusEl.className = "contact-status error";
-      statusEl.textContent = "Echec d'envoi. Reessayez dans un instant.";
-    }
-  });
 </script>

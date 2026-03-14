@@ -7,6 +7,9 @@ export default defineConfig({
   output: 'server',
   adapter: vercel(),
   site: 'https://portefolio-hiba-chghaf.vercel.app',
+  security: {
+    checkOrigin: false,
+  },
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto',
