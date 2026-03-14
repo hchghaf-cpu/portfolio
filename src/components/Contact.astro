@@ -61,7 +61,7 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
       <!-- Formulaire -->
       <form
         class="contact-form"
-        action={`https://formsubmit.co/ajax/${personalInfo.email}`}
+        action={`https://formsubmit.co/${personalInfo.email}`}
         method="POST"
         accept-charset="UTF-8"
         aria-label="Formulaire de contact"
@@ -274,6 +274,7 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
 <script>
   const form = document.querySelector("[data-contact-form]");
   const statusEl = document.querySelector("[data-contact-status]");
+  const ajaxEndpoint = "https://formsubmit.co/ajax/h.chghaf@esisa.ac.ma";
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -285,7 +286,7 @@ const successRedirectUrl = "https://portefolio-hiba-chghaf.vercel.app/#contact";
 
     try {
       const formData = new FormData(form);
-      const response = await fetch(form.action, {
+      const response = await fetch(ajaxEndpoint, {
         method: "POST",
         headers: { Accept: "application/json" },
         body: formData,
