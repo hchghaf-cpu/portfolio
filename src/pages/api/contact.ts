@@ -66,5 +66,12 @@ function jsonOrRedirect(
     });
   }
 
-  return Response.redirect(new URL(ok ? REDIRECT_SUCCESS : REDIRECT_ERROR, request.url), 303);
+  const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
+  const forwardedHost =
+    request.headers.get("x-forwarded-host") ??
+    request.headers.get("host") ??
+    "portefolio-hiba-chghaf.vercel.app";
+  const baseUrl = `${forwardedProto}://${forwardedHost}`;
+
+  return Response.redirect(new URL(ok ? REDIRECT_SUCCESS : REDIRECT_ERROR, baseUrl), 303);
 }
